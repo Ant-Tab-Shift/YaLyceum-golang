@@ -1,6 +1,10 @@
 package repository
 
-import "math/rand"
+import (
+	"context"
+	"fmt"
+	"math/rand"
+)
 
 func generateId() string {
 	symbols := make([]byte, 10)
@@ -15,4 +19,21 @@ func generateId() string {
 		}
 	}
 	return string(symbols)
+}
+
+func checkNilContext(ctx context.Context) error {
+	if ctx == nil {
+		return fmt.Errorf("storage: nil context")
+	}
+
+	return nil
+}
+
+func checkContextDone(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return nil
+	}
 }

@@ -24,12 +24,13 @@ func (r *OrdersRepository) Create(ctx context.Context, order models.Order) (stri
 	if err := checkNilContext(ctx); err != nil {
 		return "", err
 	}
-	if err := checkContextDone(ctx); err != nil {
-		return "", err
-	}
 
 	r.rwm.Lock()
 	defer r.rwm.Unlock()
+
+	if err := checkContextDone(ctx); err != nil {
+		return "", err
+	}
 
 	id := generateId()
 	err := r.findOrder(id)
@@ -51,12 +52,13 @@ func (r *OrdersRepository) GetOne(ctx context.Context, id string) (models.Order,
 	if err := checkNilContext(ctx); err != nil {
 		return models.Order{}, err
 	}
-	if err := checkContextDone(ctx); err != nil {
-		return models.Order{}, err
-	}
 
 	r.rwm.RLock()
 	defer r.rwm.RUnlock()
+
+	if err := checkContextDone(ctx); err != nil {
+		return models.Order{}, err
+	}
 
 	if err := r.findOrder(id); err != nil {
 		return models.Order{}, fmt.Errorf("could not get: %w", err)
@@ -69,12 +71,13 @@ func (r *OrdersRepository) GetAll(ctx context.Context) ([]*test.Order, error) {
 	if err := checkNilContext(ctx); err != nil {
 		return nil, err
 	}
-	if err := checkContextDone(ctx); err != nil {
-		return nil, err
-	}
 
 	r.rwm.RLock()
 	defer r.rwm.RUnlock()
+
+	if err := checkContextDone(ctx); err != nil {
+		return nil, err
+	}
 
 	orders := make([]*test.Order, 0, len(r.storage))
 	for id, order := range r.storage {
@@ -96,12 +99,13 @@ func (r *OrdersRepository) Update(ctx context.Context, id string, newOrder model
 	if err := checkNilContext(ctx); err != nil {
 		return err
 	}
-	if err := checkContextDone(ctx); err != nil {
-		return err
-	}
 
 	r.rwm.Lock()
 	defer r.rwm.Unlock()
+
+	if err := checkContextDone(ctx); err != nil {
+		return err
+	}
 
 	if err := r.findOrder(id); err != nil {
 		return fmt.Errorf("could not update: %w", err)
@@ -116,12 +120,13 @@ func (r *OrdersRepository) Delete(ctx context.Context, id string) error {
 	if err := checkNilContext(ctx); err != nil {
 		return err
 	}
-	if err := checkContextDone(ctx); err != nil {
-		return err
-	}
 
 	r.rwm.Lock()
 	defer r.rwm.Unlock()
+
+	if err := checkContextDone(ctx); err != nil {
+		return err
+	}
 
 	if err := r.findOrder(id); err != nil {
 		return fmt.Errorf("could not delete: %w", err)
@@ -144,21 +149,4 @@ func (r *OrdersRepository) findOrder(id string) error {
 	}
 
 	return nil
-}
-
-func checkNilContext(ctx context.Context) error {
-	if ctx == nil {
-		return fmt.Errorf("storage: nil context")
-	}
-
-	return nil
-}
-
-func checkContextDone(ctx context.Context) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-		return nil
-	}
 }
