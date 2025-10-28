@@ -16,8 +16,9 @@ type Repository interface {
 }
 
 type Service struct {
-	repo Repository
 	test.UnimplementedOrderServiceServer
+
+	repo Repository
 }
 
 func New(repo Repository) *Service {
